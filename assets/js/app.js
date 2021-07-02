@@ -2,9 +2,9 @@ var svgWidth = 960;
 var svgHeight = 500;
 
 var margin = {
-  top: 20,
+  top: 40,
   right: 40,
-  bottom: 80,
+  bottom: 180,
   left: 100
 };
 
@@ -67,21 +67,17 @@ function updateToolTip(chosenXAxis, circlesGroup) {
   var label;
 
   if (chosenXAxis === "poverty") {
-    label = "In Poverty (%):";
-  }
-
-  else if (chosenXAxis === "age"){
-      label = "Age (Median):"
+    label = " Poverty (%):";
   }
   else {
-    label = "Hosehold Income (Median):";
+    label = "Obesety:";
   }
 
   var toolTip = d3.tip()
     .attr("class", "tooltip")
     .offset([80, -60])
     .html(function(d) {
-      return (`${d.state}<br>${label} ${d[chosenXAxis]}`);
+      return (`${d.rockband}<br>${label} ${d[chosenXAxis]}`);
     });
 
   circlesGroup.call(toolTip);
@@ -98,16 +94,13 @@ function updateToolTip(chosenXAxis, circlesGroup) {
 }
 
 // Retrieve data from the CSV file and execute everything below
-d3.csv("../data/data.csv").then(function(data, err) {
+d3.csv("assets/data/data.csv").then(function(data, err) {
   if (err) throw err;
 
   // parse data
   data.forEach(function(data) {
     data.poverty = +data.poverty;
     data.obesity = +data.obesity;
-    data.age = +data.age;
-    data.smokes = +data.smokes;
-    data.income = +data.income;
     data.healthcare = +data.healthcare;
   });
 
@@ -117,12 +110,6 @@ d3.csv("../data/data.csv").then(function(data, err) {
   // Create y scale function
   var yLinearScale = d3.scaleLinear()
     .domain([0, d3.max(data, d => d.obesity)])
-    .range([height, 0]);
-  var yLinearScale = d3.scaleLinear()
-    .domain([0, d3.max(data, d => d.smokes)])
-    .range([height, 0]);
-  var yLinearScale = d3.scaleLinear()
-    .domain([0, d3.max(data, d => d.income)])
     .range([height, 0]);
 
   // Create initial axis functions
@@ -145,7 +132,7 @@ d3.csv("../data/data.csv").then(function(data, err) {
     .enter()
     .append("circle")
     .attr("cx", d => xLinearScale(d[chosenXAxis]))
-    .attr("cy", d => yLinearScale(d.num_hits))
+    .attr("cy", d => yLinearScale(d.obesity))
     .attr("r", 20)
     .attr("fill", "pink")
     .attr("opacity", ".5");
@@ -154,26 +141,19 @@ d3.csv("../data/data.csv").then(function(data, err) {
   var labelsGroup = chartGroup.append("g")
     .attr("transform", `translate(${width / 2}, ${height + 20})`);
 
-  var povertyLabel = labelsGroup.append("text")
+  var hairLengthLabel = labelsGroup.append("text")
     .attr("x", 0)
     .attr("y", 20)
-    .attr("value", "poverty")
+    .attr("value", "poverty") // value to grab for event listener
     .classed("active", true)
-    .text("In Poverty (%)");
+    .text("Poverty (%)");
 
-  var ageLabel = labelsGroup.append("text")
+  var albumsLabel = labelsGroup.append("text")
     .attr("x", 0)
     .attr("y", 40)
-    .attr("value", "age") 
+    .attr("value", "healthcare") // value to grab for event listener
     .classed("inactive", true)
-    .text("Age (Median)");
-
-    var householdLabel = labelsGroup.append("text")
-    .attr("x", 0)
-    .attr("y", 40)
-    .attr("value", "income") 
-    .classed("inactive", true)
-    .text("Household Income (Median)");
+    .text("Obesety");
 
   // append y axis
   chartGroup.append("text")
@@ -182,7 +162,7 @@ d3.csv("../data/data.csv").then(function(data, err) {
     .attr("x", 0 - (height / 2))
     .attr("dy", "1em")
     .classed("axis-text", true)
-    .text("Obese (%)");
+    .text("Health Care");
 
   // updateToolTip function above csv import
   var circlesGroup = updateToolTip(chosenXAxis, circlesGroup);
@@ -213,8 +193,8 @@ d3.csv("../data/data.csv").then(function(data, err) {
         circlesGroup = updateToolTip(chosenXAxis, circlesGroup);
 
         // changes classes to change bold text
-        if (chosenXAxis === "num_albums") {
-          ageLabel
+        if (chosenXAxis === "healthcare") {
+          obesityLabel
             .classed("active", true)
             .classed("inactive", false);
           povertyLabel
@@ -222,7 +202,7 @@ d3.csv("../data/data.csv").then(function(data, err) {
             .classed("inactive", true);
         }
         else {
-          ageLabel
+          obesityLabel
             .classed("active", false)
             .classed("inactive", true);
           povertyLabel
