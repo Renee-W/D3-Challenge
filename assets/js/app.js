@@ -14,7 +14,7 @@ var height = svgHeight - margin.top - margin.bottom;
 // Create an SVG wrapper, append an SVG group that will hold our chart,
 // and shift the latter by left and top margins.
 var svg = d3
-  .select(".chart")
+  .select("#scatter")
   .append("svg")
   .attr("width", svgWidth)
   .attr("height", svgHeight);
@@ -25,7 +25,7 @@ var chartGroup = svg.append("g")
 
 // Initial Params
 var chosenXAxis = "poverty";
-
+var chosenYAxis = "obesity"
 // function used for updating x-scale var upon click on axis label
 function xScale(data, chosenXAxis) {
   // create scales
@@ -36,6 +36,17 @@ function xScale(data, chosenXAxis) {
     .range([0, width]);
 
   return xLinearScale;
+
+}
+function YScale(data, chosenYAxis) {
+  // create scales
+  var YLinearScale = d3.scaleLinear()
+    .domain([d3.min(data, d => d[chosenYAxis]) * 0.8,
+      d3.max(data, d => d[chosenYAxis]) * 1.2
+    ])
+    .range([0, height]);
+
+  return YLinearScale;
 
 }
 
@@ -70,14 +81,14 @@ function updateToolTip(chosenXAxis, circlesGroup) {
     label = " Poverty (%):";
   }
   else {
-    label = "Obesety:";
+    label = "Obesity:";
   }
 
   var toolTip = d3.tip()
     .attr("class", "tooltip")
     .offset([80, -60])
     .html(function(d) {
-      return (`${d.rockband}<br>${label} ${d[chosenXAxis]}`);
+      return (`${d.obesity}<br>${label} ${d[chosenXAxis]}`);
     });
 
   circlesGroup.call(toolTip);
@@ -137,23 +148,23 @@ d3.csv("assets/data/data.csv").then(function(data, err) {
     .attr("fill", "pink")
     .attr("opacity", ".5");
 
-  // Create group for two x-axis labels
+  // Create group for three x-axis labels
   var labelsGroup = chartGroup.append("g")
     .attr("transform", `translate(${width / 2}, ${height + 20})`);
 
-  var hairLengthLabel = labelsGroup.append("text")
+  var povertyLabel = labelsGroup.append("text")
     .attr("x", 0)
     .attr("y", 20)
     .attr("value", "poverty") // value to grab for event listener
     .classed("active", true)
     .text("Poverty (%)");
 
-  var albumsLabel = labelsGroup.append("text")
+  var ageLabel = labelsGroup.append("text")
     .attr("x", 0)
     .attr("y", 40)
-    .attr("value", "healthcare") // value to grab for event listener
+    .attr("value", "age") // value to grab for event listener
     .classed("inactive", true)
-    .text("Obesety");
+    .text("age");
 
   // append y axis
   chartGroup.append("text")
@@ -162,7 +173,7 @@ d3.csv("assets/data/data.csv").then(function(data, err) {
     .attr("x", 0 - (height / 2))
     .attr("dy", "1em")
     .classed("axis-text", true)
-    .text("Health Care");
+    .text("Obesity");
 
   // updateToolTip function above csv import
   var circlesGroup = updateToolTip(chosenXAxis, circlesGroup);
@@ -193,8 +204,8 @@ d3.csv("assets/data/data.csv").then(function(data, err) {
         circlesGroup = updateToolTip(chosenXAxis, circlesGroup);
 
         // changes classes to change bold text
-        if (chosenXAxis === "healthcare") {
-          obesityLabel
+        if (chosenXAxis === "age") {
+          ageLabel
             .classed("active", true)
             .classed("inactive", false);
           povertyLabel
@@ -202,7 +213,7 @@ d3.csv("assets/data/data.csv").then(function(data, err) {
             .classed("inactive", true);
         }
         else {
-          obesityLabel
+          ageLabel
             .classed("active", false)
             .classed("inactive", true);
           povertyLabel
