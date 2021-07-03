@@ -1,15 +1,17 @@
-var svgWidth = 960;
+//set up chart
+var svgWidth = 1000;
 var svgHeight = 500;
 
 var margin = {
-  top: 40,
-  right: 40,
-  bottom: 180,
-  left: 100
+  top: 50,
+  right: 50,
+  bottom: 100,
+  left: 50
 };
 
 var width = svgWidth - margin.left - margin.right;
 var height = svgHeight - margin.top - margin.bottom;
+
 
 // Create an SVG wrapper, append an SVG group that will hold our chart,
 // and shift the latter by left and top margins.
@@ -78,17 +80,17 @@ function updateToolTip(chosenXAxis, circlesGroup) {
   var label;
 
   if (chosenXAxis === "poverty") {
-    label = " Poverty (%):";
+    label = " In Poverty (%):";
   }
   else {
-    label = "Obesity:";
+    label = "Average Age:";
   }
 
   var toolTip = d3.tip()
     .attr("class", "tooltip")
     .offset([80, -60])
     .html(function(d) {
-      return (`${d.obesity}<br>${label} ${d[chosenXAxis]}`);
+      return (`Obesity: ${d.obesity}<br>${label} ${d[chosenXAxis]}`);
     });
 
   circlesGroup.call(toolTip);
@@ -145,8 +147,26 @@ d3.csv("assets/data/data.csv").then(function(data, err) {
     .attr("cx", d => xLinearScale(d[chosenXAxis]))
     .attr("cy", d => yLinearScale(d.obesity))
     .attr("r", 20)
-    .attr("fill", "pink")
+    .attr("fill", "blue")
     .attr("opacity", ".5");
+  
+  var circleLabels = chartGroup.selectAll(null).data(data).enter().append("text");
+
+  circleLabels
+      .attr("x", function(d) {
+        return xLinearScale(d.poverty);
+      })
+      .attr("y", function(d) {
+        return yLinearScale(d.obesity);
+      })
+      .text(function(d) {
+        return d.abbr;
+      })
+      .attr("font-family", "sans-serif")
+      .attr("font-size", "10px")
+      .attr("text-anchor", "middle")
+      .attr("fill", "white");
+    
 
   // Create group for three x-axis labels
   var labelsGroup = chartGroup.append("g")
@@ -164,7 +184,7 @@ d3.csv("assets/data/data.csv").then(function(data, err) {
     .attr("y", 40)
     .attr("value", "age") // value to grab for event listener
     .classed("inactive", true)
-    .text("age");
+    .text("Average Age");
 
   // append y axis
   chartGroup.append("text")
@@ -173,7 +193,7 @@ d3.csv("assets/data/data.csv").then(function(data, err) {
     .attr("x", 0 - (height / 2))
     .attr("dy", "1em")
     .classed("axis-text", true)
-    .text("Obesity");
+    .text("Obesity (%)");
 
   // updateToolTip function above csv import
   var circlesGroup = updateToolTip(chosenXAxis, circlesGroup);
