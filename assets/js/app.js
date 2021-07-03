@@ -43,7 +43,7 @@ function xScale(data, chosenXAxis) {
 function YScale(data, chosenYAxis) {
   // create scales
   var YLinearScale = d3.scaleLinear()
-    .domain([d3.min(data, d => d[chosenYAxis]) * 0.8,
+    .range([d3.min(data, d => d[chosenYAxis]) * 0.8,
       d3.max(data, d => d[chosenYAxis]) * 1.2
     ])
     .range([0, height]);
@@ -82,6 +82,10 @@ function updateToolTip(chosenXAxis, circlesGroup) {
   if (chosenXAxis === "poverty") {
     label = " In Poverty (%):";
   }
+
+  else if (chosenXAxis === 'income'){
+    label ="Income 87"
+  }
   else {
     label = "Average Age:";
   }
@@ -114,7 +118,7 @@ d3.csv("assets/data/data.csv").then(function(data, err) {
   data.forEach(function(data) {
     data.poverty = +data.poverty;
     data.obesity = +data.obesity;
-    data.healthcare = +data.healthcare;
+    data.income = +data.income;
   });
 
   // xLinearScale function above csv import
@@ -184,7 +188,15 @@ d3.csv("assets/data/data.csv").then(function(data, err) {
     .attr("y", 40)
     .attr("value", "age") // value to grab for event listener
     .classed("inactive", true)
-    .text("Average Age");
+    .text("Age (Median)");
+
+  var incomeLabel = labelsGroup.append("text")
+    .attr("x", 0)
+    .attr("y", 60)
+    .attr("value", "income") // value to grab for event listener
+    .classed("inactive", true)
+    .text("Household Income (Median)");
+  
 
   // append y axis
   chartGroup.append("text")
@@ -231,7 +243,23 @@ d3.csv("assets/data/data.csv").then(function(data, err) {
           povertyLabel
             .classed("active", false)
             .classed("inactive", true);
+          incomeLabel
+            .classed("active", false)
+            .classed("inactive", true);
         }
+
+        else if (chosenXAxis === "income") {
+          ageLabel
+            .classed("active", false)
+            .classed("inactive", true);
+          povertyLabel
+            .classed("active", false)
+            .classed("inactive", true);
+          incomeLabel
+            .classed("active", true)
+            .classed("inactive", false);
+        }
+        
         else {
           ageLabel
             .classed("active", false)
@@ -239,6 +267,9 @@ d3.csv("assets/data/data.csv").then(function(data, err) {
           povertyLabel
             .classed("active", true)
             .classed("inactive", false);
+          incomeLabel
+            .classed("active", false)
+            .classed("inactive", true);
         }
       }
     });
